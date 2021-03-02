@@ -1,4 +1,6 @@
-<?php namespace jabarihunt;
+<?php
+
+    use jabarihunt\Models\[MODEL_NAME]Model;
 
     /********************************************************************************
      * [MODEL_NAME_UPPERCASE] MODEL
@@ -36,10 +38,10 @@
             // OVERRIDE CRUD METHODS
             // Place any methods that you wish to override below. The method list includes:
             //
-            // - public static function create(Array $data)
-            // - public static function get(Integer $id)
-            // - public function update(Array $data)
-            // - public function delete(Mixed $idOrIds)
+            // - public static function create(array $data)
+            // - public static function get(mixed $idOrData)
+            // - public function update(array $data)
+            // - public function delete(mixed $idOrIds)
             /////////////////////////////////////////////////////////////////////////////////
 
 

@@ -1,16 +1,14 @@
-<?php namespace jabarihunt;
-
-    use Dotenv\Dotenv;
+<?php namespace jabarihunt\Models;
 
     /********************************************************************************
      * GET .env FILE
      ********************************************************************************/
 
         $envFound    = FALSE;
-        $envFilePath = "/../../../.env";
+        $envFilePath = "/../../../../.env";
 
-        for ($i = 0; $i < 4; $i++) {
-echo "\r\nPATH: $envFilePath\r\n";
+        for ($i = 0; $i < 5; $i++) {
+
             if (file_exists(__DIR__ . $envFilePath)) {
 
                 $envFilePath = __DIR__ . $envFilePath;
@@ -30,32 +28,45 @@ echo "\r\nPATH: $envFilePath\r\n";
 
         }
 
-
     /********************************************************************************
-     * MAKE SURE TWO ARGUMENTS WERE PASSED
+     * GET MODELS DIRECTORY PATH FROM PASSED ARGUMENT
      ********************************************************************************/
 
-//        if (empty(trim($argv[1])) || empty(trim($argv[2]))) {
-//
-//            echo "\r\nMODEL BUILDER: Missing arguments!\r\n";
-//            echo "MODEL BUILDER: php ModelBuilder.php '/path/to/.env' '/path/to/models/directory'\r\n\r\n";
-//            die();
-//
-//        } else {
-//
-//            $envFile         = trim($argv[1]);
-//            $modelsDirectory = trim($argv[2]);
-//
-//        }
+        if (!empty($argv[1])) {
+
+            $modelsDirectoryPath = trim($argv[1]);
+            $modelsDirectoryPath = rtrim($argv[1], '/');
+
+            if (!is_dir($modelsDirectoryPath)) {
+
+                echo "\r\nMODEL BUILDER: Invalid directory provided!\r\n\r\n";
+                echo "MODEL BUILDER: php ModelBuilder.php '/path/to/working/directory'\r\n\r\n";
+                die();
+
+            } else if (substr($modelsDirectoryPath, -1, 6) !== 'models') {
+                $modelsDirectoryPath = "{$modelsDirectoryPath}/models";
+            }
+
+            mkdir($modelsDirectoryPath, 0644);
+
+        } else {
+
+            echo "\r\nMODEL BUILDER: Missing arguments!\r\n";
+            echo "MODEL BUILDER: php ModelBuilder.php '/path/to/working/directory'\r\n\r\n";
+            die();
+
+        }
 
     /********************************************************************************
      * AUTO LOAD | INSTANTIATE REQUIRED LIBRARIES -> DOTENV | DB
      ********************************************************************************/
 
-//        require(__DIR__ . '../../../autoload.php');
-//
-//        $dotenv = Dotenv::createImmutable($envFile);
-//        $dotenv->load();
+        require(__DIR__ . '../../../autoload.php');
+
+        use jabarihunt\mysql as DB;
+
+        $dotenv = Dotenv\Dotenv::createImmutable($envFilePath);
+        $dotenv->load();
 
     /********************************************************************************
      * PHP CLI MODEL BUILDER
@@ -120,7 +131,7 @@ echo "\r\nPATH: $envFilePath\r\n";
              * CLASS CONSTRUCTOR AND DESTRUCTOR
              ********************************************************************************/
 
-                public function __construct() {
+                public function __construct($modelsDirectoryPath) {
 
                     // GET BASE MODEL | GET TABLE DATA
 
@@ -150,7 +161,7 @@ echo "\r\nPATH: $envFilePath\r\n";
 
                             // CREATE MODEL DATA | PROMPT USER | RESET REPLACE ARRAY
 
-                                $tableBuilt = $this->buildBaseModel($tableName);
+                                $tableBuilt = $this->buildBaseModel($tableName, $modelsDirectoryPath);
                                 $tableBuilt ? $this->prompt("COMPLETE: {$tableName}") : $this->prompt("ERROR: {$tableName}");
                                 $this->resetReplaceArray();
 
@@ -189,10 +200,12 @@ echo "\r\nPATH: $envFilePath\r\n";
             /********************************************************************************
              * BUILD BASE MODEL METHOD
              * @param string $tableName
+             * @param string $modelsDirectoryPath
              * @return boolean
-             ********************************************************************************/
+             ******************************************************************************
+             */
 
-                private function buildBaseModel(string $tableName): bool {
+                private function buildBaseModel(string $tableName, string $modelsDirectoryPath): bool {
 
                     // GET TABLE COLUMN INFO | SET INITIAL RETURN VALUE
 
@@ -201,8 +214,8 @@ echo "\r\nPATH: $envFilePath\r\n";
 
                     // SET INITIAL REPLACE VARIABLES
 
-                        $this->replace['modelName']                     = Utilities::snakeToCamel($tableName, TRUE);
-                        $this->replace['modelName']                     = Utilities::pluralToSingular($this->replace['modelName']);
+                        $this->replace['modelName']                     = $this->snakeToCamel($tableName, TRUE);
+                        $this->replace['modelName']                     = $this->pluralToSingular($this->replace['modelName']);
                         $this->replace['modelNameFirstLetterLowercase'] = lcfirst($this->replace['modelName']);
                         $this->replace['modelNameUppercase']            = strtoupper($this->replace['modelName']);
                         $this->replace['tableName']                     = $tableName;
@@ -286,12 +299,12 @@ echo "\r\nPATH: $envFilePath\r\n";
                     // SAVE MODEL FILES
 
                         $baseModel     = str_replace(ModelBuilder::SEARCH, $this->replace, $this->baseModel);
-                        $baseModelFile = __DIR__ . "/../../models/base/{$this->replace['modelName']}Model.php";
+                        $baseModelFile = __DIR__ . "/models/{$this->replace['modelName']}Model.php";
                         $fileSaved     = file_put_contents($baseModelFile, $baseModel);
 
                         if ($fileSaved !== FALSE) {
 
-                            $modelFile = __DIR__ . "/../../models/{$this->replace['modelName']}.php";
+                            $modelFile = "/{$modelsDirectoryPath}/{$this->replace['modelName']}.php";
 
                             if (!file_exists($modelFile)) {
 
@@ -309,6 +322,84 @@ echo "\r\nPATH: $envFilePath\r\n";
                         }
 
                         return $modelBuilt;
+
+                }
+
+            /********************************************************************************
+             * PLURAL TO SINGULAR
+             * @param string $word Word to be made singular
+             * @return string
+             ********************************************************************************/
+
+                public static function pluralToSingular(string $word): string {
+
+                    if (strlen($word) > 0) {
+
+                        // SET INITIAL VARIABLES
+
+                        $firstLetter      = $word[0];
+                        $specialCaseWords = [];
+
+                        $wordEndings = [
+                            'ies' => 'y',
+                            'oes' => 'oe',
+                            'ves' => 'f',
+                            'xes' => 'x',
+                            'os'  => 'o',
+                            's'   => ''
+                        ];
+
+                        // HANDLE WORD TYPE
+
+                        if (array_key_exists(strtolower($word), $specialCaseWords)) {
+                            $word = $specialCaseWords[$word];
+                        } else {
+
+                            // LOOP THROUGH WORD ENDINGS -> BUILD WORD ON MATCH
+
+                            foreach($wordEndings as $ending => $replacement) {
+
+                                if (substr($word, (strlen($ending) * -1)) == $ending) {
+
+                                    $word  = substr($word, 0, strlen($word) - strlen($ending));
+                                    $word .= $replacement;
+                                    break;
+
+                                }
+
+                            }
+
+                        }
+
+                        // REPLACE THE FIRST LETTER WITH WHATEVER THE ORIGINAL WAS
+
+                        $word[0] = $firstLetter;
+
+                    }
+
+                    return $word;
+
+                }
+
+            /********************************************************************************
+             * SNAKE CASE TO CAMEL CASE METHOD
+             * @param string $value String value to be converted to camel case.
+             * @param bool $firstLetterUpper Determines if the first letter should be upper case
+             * @return string
+             ********************************************************************************/
+
+                public static function snakeToCamel(string $value, bool $firstLetterUpper = FALSE): string {
+
+                    if (strlen($value) > 0) {
+
+                        $value = str_replace('_', ' ', strtolower($value));
+                        $value = str_replace(' ', '', ucwords($value));
+
+                        if (!$firstLetterUpper) {$value = lcfirst($value);}
+
+                    }
+
+                    return $value;
 
                 }
 

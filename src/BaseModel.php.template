@@ -1,4 +1,4 @@
-<?php namespace jabarihunt;
+<?php namespace jabarihunt\Models;
 
     /********************************************************************************
      * [MODEL_NAME_UPPERCASE] BASE MODEL

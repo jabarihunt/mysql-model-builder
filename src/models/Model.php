@@ -1,4 +1,4 @@
-<?php namespace jabarihunt;
+<?php namespace jabarihunt\Models;
 
     /********************************************************************************
      * MODEL CLASS
