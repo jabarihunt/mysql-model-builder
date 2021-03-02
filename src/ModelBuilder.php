@@ -173,8 +173,8 @@
 
                     // COPY MODEL FILE IF IT DOESN'T EXIST
 
-                        if (!file_exists(__DIR__ . 'models/Model.php')) {
-                            copy((__DIR__ . '/Model.php'), (__DIR__ . '/models/Model.php'));
+                        if (!file_exists(__DIR__ . 'models/Model.php.template')) {
+                            copy((__DIR__ . '/Model.php.template'), (__DIR__ . '/models/Model.php'));
                         }
 
                 }
@@ -309,7 +309,7 @@
                     // SAVE MODEL FILES
 
                         $baseModel     = str_replace(ModelBuilder::SEARCH, $this->replace, $this->baseModel);
-                        $baseModelFile = __DIR__ . "/models/{$this->replace['modelName']}Model.php";
+                        $baseModelFile = __DIR__ . "/models/{$this->replace['modelName']}Model.php.template";
                         $fileSaved     = file_put_contents($baseModelFile, $baseModel);
 
                         if ($fileSaved !== FALSE) {

@@ -182,4 +182,4 @@ vendor/
 phinx.yml
 
 ### Manevia ###
-models
+models/*
