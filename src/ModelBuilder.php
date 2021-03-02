@@ -1,30 +1,72 @@
-<?php namespace Manevia;
+<?php namespace jabarihunt;
 
     use Dotenv\Dotenv;
 
     /********************************************************************************
-     * AUTO LOAD | INSTANTIATE REQUIRED LIBRARIES -> DOTENV | DB
-     * START SESSIONS
+     * GET .env FILE
      ********************************************************************************/
 
-        require(__DIR__ . '/../../vendor/autoload.php');
+        $envFound    = FALSE;
+        $envFilePath = "/../../../.env";
 
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../manevia/');
-        $dotenv->load();
+        for ($i = 0; $i < 4; $i++) {
+echo "\r\nPATH: $envFilePath\r\n";
+            if (file_exists(__DIR__ . $envFilePath)) {
 
-        DB::initialize();
+                $envFilePath = __DIR__ . $envFilePath;
+                $envFound    = TRUE;
+                break;
+
+            } else {
+                $envFilePath = '/..' . $envFilePath;
+            }
+
+        }
+
+        if (!$envFound) {
+
+            echo "\r\nMODEL BUILDER: .env file not found!\r\n\r\n";
+            die();
+
+        }
+
 
     /********************************************************************************
-     * PHP CLI BASE MODEL BUILDER
-     * PHP version 7.1+
+     * MAKE SURE TWO ARGUMENTS WERE PASSED
+     ********************************************************************************/
+
+//        if (empty(trim($argv[1])) || empty(trim($argv[2]))) {
+//
+//            echo "\r\nMODEL BUILDER: Missing arguments!\r\n";
+//            echo "MODEL BUILDER: php ModelBuilder.php '/path/to/.env' '/path/to/models/directory'\r\n\r\n";
+//            die();
+//
+//        } else {
+//
+//            $envFile         = trim($argv[1]);
+//            $modelsDirectory = trim($argv[2]);
+//
+//        }
+
+    /********************************************************************************
+     * AUTO LOAD | INSTANTIATE REQUIRED LIBRARIES -> DOTENV | DB
+     ********************************************************************************/
+
+//        require(__DIR__ . '../../../autoload.php');
+//
+//        $dotenv = Dotenv::createImmutable($envFile);
+//        $dotenv->load();
+
+    /********************************************************************************
+     * PHP CLI MODEL BUILDER
      * @author Jabari J. Hunt <jabari@jabari.net>
      ********************************************************************************/
 
-        final class BaseModelBuilder {
+        final class ModelBuilder {
 
             /********************************************************************************
              * CLASS CONSTANTS
-             * @var array SEARCH Array of place holders in BaseModel.php
+             * @var array SEARCH Array of place holders in BaseModel.php.template
              ********************************************************************************/
 
                 const SEARCH = [
@@ -49,7 +91,7 @@
             /********************************************************************************
              * CLASS VARIABLES
              * @var string $baseModel Holds base model text
-             * @var array $replace Array of values to use in BaseModel.php (for each model)
+             * @var array $replace Array of values to use in BaseModel.php.template (for each model)
              ********************************************************************************/
 
                 private $baseModel;
@@ -84,13 +126,13 @@
 
                         $this->prompt("\nStarting Base Model Builder...\n", FALSE);
 
-                        $this->baseModel = file_get_contents(__DIR__ . '/BaseModel.php-distro');
+                        $this->baseModel = file_get_contents(__DIR__ . '/BaseModel.php.template');
 
                         if (!empty($this->baseModel)) {
                             $this->prompt('Retrieved base model template');
                         }
 
-                        $this->model = file_get_contents(__DIR__ . '/Model.php-distro');
+                        $this->model = file_get_contents(__DIR__ . '/WorkingModel.php.template');
 
                         if (!empty($this->model)) {
                             $this->prompt('Retrieved model template');
@@ -243,7 +285,7 @@
 
                     // SAVE MODEL FILES
 
-                        $baseModel     = str_replace(BaseModelBuilder::SEARCH, $this->replace, $this->baseModel);
+                        $baseModel     = str_replace(ModelBuilder::SEARCH, $this->replace, $this->baseModel);
                         $baseModelFile = __DIR__ . "/../../models/base/{$this->replace['modelName']}Model.php";
                         $fileSaved     = file_put_contents($baseModelFile, $baseModel);
 
@@ -253,7 +295,7 @@
 
                             if (!file_exists($modelFile)) {
 
-                                $model     = str_replace(BaseModelBuilder::SEARCH, $this->replace, $this->model);
+                                $model     = str_replace(ModelBuilder::SEARCH, $this->replace, $this->model);
                                 $fileSaved = file_put_contents($modelFile, $model);
 
                             }
@@ -301,6 +343,6 @@
 
         }
 
-        new BaseModelBuilder();
+        //new ModelBuilder();
 
 ?>

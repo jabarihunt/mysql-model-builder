@@ -1,8 +1,7 @@
-<?php namespace Manevia;
+<?php namespace jabarihunt;
 
     /********************************************************************************
      * [MODEL_NAME_UPPERCASE] MODEL
-     * PHP version 7.1+
      * Auto Generated via ../cli/model_builder_docs/BaseModelBuilder.php
      ********************************************************************************/
 

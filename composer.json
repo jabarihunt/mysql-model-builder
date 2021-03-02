@@ -1,0 +1,24 @@
+{
+  "name": "jabarihunt/mysql-model-builder",
+  "type": "library",
+  "description": "A class that builds usable models based on your MySQL database tables.",
+  "keywords": ["mysql", "model", "orm"],
+  "homepage": "https://github.com/jabarihunt/mysql-model-builder",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jabari J. Hunt",
+      "email": "jabari@jabari.net",
+      "homepage": "http://www.jabari.net",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "jabarihunt\\": "src/"
+    }
+  }
+}

@@ -1,8 +1,8 @@
-<?php namespace Manevia;
+<?php namespace jabarihunt;
 
     /********************************************************************************
-     * MANEVIA BASE MODEL CLASS
-     * This is the model that all other base models (generated) should extend.
+     * MODEL CLASS
+     * This is the model that all other base models (generated) extend.
      * @author Jabari J. Hunt <jabari@jabari.net>
      ********************************************************************************/
 
