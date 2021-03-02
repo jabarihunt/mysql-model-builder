@@ -5,13 +5,14 @@
      ********************************************************************************/
 
         $envFound    = FALSE;
-        $envFilePath = "/../../../../.env";
+        $envFilePath = "/../../../../";
 
         for ($i = 0; $i < 5; $i++) {
 
-            if (file_exists(__DIR__ . $envFilePath)) {
+            if (file_exists(__DIR__ . $envFilePath . '.env')) {
 
-                $envFilePath = __DIR__ . $envFilePath;
+                $envFilePath = (__DIR__ . $envFilePath);
+                //$envFilePath = rtrim($envFilePath, '/.env');
                 $envFound    = TRUE;
                 break;
 
@@ -47,7 +48,9 @@
                 $modelsDirectoryPath = "{$modelsDirectoryPath}/models";
             }
 
-            mkdir($modelsDirectoryPath, 0644);
+            if (!is_dir($modelsDirectoryPath)) {
+                mkdir($modelsDirectoryPath, 0755);
+            }
 
         } else {
 
@@ -61,11 +64,12 @@
      * AUTO LOAD | INSTANTIATE REQUIRED LIBRARIES -> DOTENV | DB
      ********************************************************************************/
 
-        require(__DIR__ . '../../../autoload.php');
+        require(__DIR__ . '/../../../autoload.php');
 
-        use jabarihunt\mysql as DB;
+        use Dotenv\Dotenv;
+        use jabarihunt\MySQL as DB;
 
-        $dotenv = Dotenv\Dotenv::createImmutable($envFilePath);
+        $dotenv = Dotenv::createImmutable($envFilePath);
         $dotenv->load();
 
     /********************************************************************************
@@ -162,9 +166,15 @@
                             // CREATE MODEL DATA | PROMPT USER | RESET REPLACE ARRAY
 
                                 $tableBuilt = $this->buildBaseModel($tableName, $modelsDirectoryPath);
-                                $tableBuilt ? $this->prompt("COMPLETE: {$tableName}") : $this->prompt("ERROR: {$tableName}");
+                                $tableBuilt ? $this->prompt("COMPLETED: {$tableName}") : $this->prompt("ERROR: {$tableName}");
                                 $this->resetReplaceArray();
 
+                        }
+
+                    // COPY MODEL FILE IF IT DOESN'T EXIST
+
+                        if (!file_exists(__DIR__ . 'models/Model.php')) {
+                            copy((__DIR__ . '/Model.php'), (__DIR__ . '/models/Model.php'));
                         }
 
                 }
@@ -250,7 +260,7 @@
 
                                 $this->replace['classVariables']                .= "                protected \${$column['Field']};\n";
                                 $this->replace['classConstantDataTypes']        .= "                    '{$column['Field']}' => '{$column['Type']}',\n";
-                                $this->replace['getters']                       .= '                final public function get' . Utilities::snakeToCamel($column['Field'], TRUE) . "() {return \$this->{$column['Field']};}\n";
+                                $this->replace['getters']                       .= '                final public function get' . $this->snakeToCamel($column['Field'], TRUE) . "() {return \$this->{$column['Field']};}\n";
                                 $this->replace['allColumnNames']                .= "`{$column['Field']}`, ";
 
                                 if (strtolower($column['Key']) != 'pri') {
@@ -304,7 +314,7 @@
 
                         if ($fileSaved !== FALSE) {
 
-                            $modelFile = "/{$modelsDirectoryPath}/{$this->replace['modelName']}.php";
+                            $modelFile = "{$modelsDirectoryPath}/{$this->replace['modelName']}.php";
 
                             if (!file_exists($modelFile)) {
 
@@ -434,6 +444,6 @@
 
         }
 
-        //new ModelBuilder();
+        new ModelBuilder($modelsDirectoryPath);
 
 ?>

@@ -14,7 +14,7 @@
     }
   ],
   "require": {
-    "php": ">=7.1.0",
+    "php": ">=8.0",
     "jabarihunt/mysql": "*",
     "vlucas/phpdotenv": "*"
   },
