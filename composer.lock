@@ -74,16 +74,16 @@
         },
         {
             "name": "jabarihunt/mysql",
-            "version": "v1.2.0",
+            "version": "v1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jabarihunt/mysql.git",
-                "reference": "8dfc42a416d579048ec6bfce70e6f957d3f388e1"
+                "reference": "b20fd96dc266053e2bd831777e157525392638a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jabarihunt/mysql/zipball/8dfc42a416d579048ec6bfce70e6f957d3f388e1",
-                "reference": "8dfc42a416d579048ec6bfce70e6f957d3f388e1",
+                "url": "https://api.github.com/repos/jabarihunt/mysql/zipball/b20fd96dc266053e2bd831777e157525392638a1",
+                "reference": "b20fd96dc266053e2bd831777e157525392638a1",
                 "shasum": ""
             },
             "require": {
@@ -116,9 +116,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jabarihunt/mysql/issues",
-                "source": "https://github.com/jabarihunt/mysql/tree/v1.2.0"
+                "source": "https://github.com/jabarihunt/mysql/tree/v1.2.1"
             },
-            "time": "2021-03-05T03:30:55+00:00"
+            "time": "2021-03-05T17:59:11+00:00"
         },
         {
             "name": "phpoption/phpoption",
