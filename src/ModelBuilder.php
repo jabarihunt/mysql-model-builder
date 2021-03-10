@@ -133,10 +133,20 @@
              ********************************************************************************/
 
                 public function __construct(string $modelsDirectoryPath, string $namespace) {
-var_dump(getcwd());
+
                     // SET NAMESPACE IN REPLACE ARRAY
 
                         $this->replace['namespace'] = $namespace;
+
+                    // CREATE MODEL AND BASE MODEL DIRECTORIES
+
+                        if (!is_dir($modelsDirectoryPath)) {
+                            mkdir($modelsDirectoryPath, 0755);
+                        }
+
+                        if (!is_dir($modelsDirectoryPath . '/base')) {
+                            mkdir($modelsDirectoryPath . '/base', 0755);
+                        }
 
                     // GET BASE MODEL | GET TABLE DATA
 
@@ -160,6 +170,12 @@ var_dump(getcwd());
                             $this->prompt('Preparing to build ' . count($tableNames) . ' table(s)');
                         }
 
+                    // COPY MODEL FILE
+
+                        $content = file_get_contents(__DIR__ . '/templates/Model.php.template');
+                        $content = str_replace(ModelBuilder::SEARCH, $this->replace, $content);
+                        file_put_contents($modelsDirectoryPath . '/base/Model.php', $content);
+
                     // BUILD BASE MODEL FOR EACH TABLE AND SAVE
 
                         foreach ($tableNames as $tableName) {
@@ -168,24 +184,8 @@ var_dump(getcwd());
 
                                 $tableBuilt = $this->buildBaseModel($tableName, $modelsDirectoryPath);
                                 $tableBuilt ? $this->prompt("COMPLETED: {$tableName}") : $this->prompt("ERROR: {$tableName}");
-                                $this->resetReplaceArray();
+                                $this->resetReplaceArray($namespace);
 
-                        }
-
-                    // CREATE MODEL AND BASE MODEL DIRECTORIES
-
-                        if (!is_dir($modelsDirectoryPath)) {
-                            mkdir($modelsDirectoryPath, 0755);
-                        }
-
-                        if (!is_dir($modelsDirectoryPath . '/base')) {
-                            mkdir($modelsDirectoryPath . '/base', 0755);
-                        }
-
-                    // COPY MODEL FILE IF IT DOESN'T EXIST
-
-                        if (!file_exists($modelsDirectoryPath . '/base/Model.php')) {
-                            copy((__DIR__ . '/templates/Model.php.template'), ($modelsDirectoryPath . '/base/Model.php'));
                         }
 
                 }
@@ -429,10 +429,12 @@ var_dump(getcwd());
              * @return void
              ********************************************************************************/
 
-                private function resetReplaceArray(): void {
+                private function resetReplaceArray($namespace): void {
 
                     foreach ($this->replace as $key => $value) {
-                        $this->replace[$key] = '';
+                        if ($key !== 'namespace') {
+                            $this->replace[$key] = '';
+                        }
                     }
 
                 }
