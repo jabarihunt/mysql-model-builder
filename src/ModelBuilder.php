@@ -1,7 +1,18 @@
 <?php namespace jabarihunt;
 
     /********************************************************************************
-     * SET NAMESPACE
+     * GET AUTO LOADER | GET REQUIRED LIBRARIES | SET PROJECT DIRECTORY
+     ********************************************************************************/
+
+        require(__DIR__ . '/../../../autoload.php');
+
+        use Dotenv\Dotenv;
+        use jabarihunt\MySQL as DB;
+
+        $projectPath = getcwd();
+
+    /********************************************************************************
+     * SET NAMESPACE VARIABLE
      ********************************************************************************/
 
         if (!empty($argv[1])) {
@@ -11,13 +22,12 @@
         $namespace = !empty($namespace) ? $namespace : 'jabarihunt';
 
     /********************************************************************************
-     * SET PROJECT PATH | CREATE MODELS DIRECTORY PATH AND DIRECTORY
+     * SET MODELS DIRECTORY PATH AND DIRECTORY
      ********************************************************************************/
 
-        $projectPath         = __DIR__ . "/../../../..";
         $modelsDirectoryPath = $projectPath;
 
-        if (!empty($argv[2])) {
+        if (!empty($argv[2]) && !in_array($argv[2], ['.', '/'])) {
 
             $arg2 = trim($argv[2]);
             $arg2 = trim($arg2, '/');
@@ -28,12 +38,8 @@
 
         $modelsDirectoryPath .= '/models';
 
-        if (!is_dir($modelsDirectoryPath)) {
-            mkdir($modelsDirectoryPath, 0755);
-        }
-
     /********************************************************************************
-     * GET .env FILE
+     * GET .env FILE -> INSTANTIATE DOTENV
      ********************************************************************************/
 
         $envFound    = FALSE;
@@ -50,22 +56,13 @@
 
         }
 
-        if (!$envFound) {
+        if ($envFound) {
+            $dotenv = Dotenv::createImmutable($envFilePath);
+            $dotenv->load();
+        } else {
             echo "\r\nMODEL BUILDER: .env file not found!\r\n\r\n";
             die();
         }
-
-    /********************************************************************************
-     * AUTO LOAD | INSTANTIATE REQUIRED LIBRARIES -> DOTENV | DB
-     ********************************************************************************/
-
-        require(__DIR__ . '/../../../autoload.php');
-
-        use Dotenv\Dotenv;
-        use jabarihunt\MySQL as DB;
-
-        $dotenv = Dotenv::createImmutable($envFilePath);
-        $dotenv->load();
 
     /********************************************************************************
      * PHP CLI MODEL BUILDER
@@ -136,7 +133,7 @@
              ********************************************************************************/
 
                 public function __construct(string $modelsDirectoryPath, string $namespace) {
-
+var_dump(getcwd());
                     // SET NAMESPACE IN REPLACE ARRAY
 
                         $this->replace['namespace'] = $namespace;
@@ -145,13 +142,13 @@
 
                         $this->prompt("\nStarting Base Model Builder...\n", FALSE);
 
-                        $this->baseModelContent = file_get_contents(__DIR__ . 'templates/BaseModel.php.template');
+                        $this->baseModelContent = file_get_contents(__DIR__ . '/templates/BaseModel.php.template');
 
                         if (!empty($this->baseModelContent)) {
                             $this->prompt('Retrieved base model template');
                         }
 
-                        $this->modelContent = file_get_contents(__DIR__ . 'templates/WorkingModel.php.template');
+                        $this->modelContent = file_get_contents(__DIR__ . '/templates/WorkingModel.php.template');
 
                         if (!empty($this->modelContent)) {
                             $this->prompt('Retrieved model template');
@@ -175,10 +172,20 @@
 
                         }
 
+                    // CREATE MODEL AND BASE MODEL DIRECTORIES
+
+                        if (!is_dir($modelsDirectoryPath)) {
+                            mkdir($modelsDirectoryPath, 0755);
+                        }
+
+                        if (!is_dir($modelsDirectoryPath . '/base')) {
+                            mkdir($modelsDirectoryPath . '/base', 0755);
+                        }
+
                     // COPY MODEL FILE IF IT DOESN'T EXIST
 
                         if (!file_exists($modelsDirectoryPath . '/base/Model.php')) {
-                            copy((__DIR__ . 'templates/Model.php.template'), ($modelsDirectoryPath . '/base/Model.php'));
+                            copy((__DIR__ . '/templates/Model.php.template'), ($modelsDirectoryPath . '/base/Model.php'));
                         }
 
                 }
