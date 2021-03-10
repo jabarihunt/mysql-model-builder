@@ -1,63 +1,58 @@
-<?php namespace jabarihunt\Models;
+<?php namespace jabarihunt;
+
+    /********************************************************************************
+     * SET NAMESPACE
+     ********************************************************************************/
+
+        if (!empty($argv[1])) {
+            $namespace = trim($argv[1]);
+        }
+
+        $namespace = !empty($namespace) ? $namespace : 'jabarihunt';
+
+    /********************************************************************************
+     * SET PROJECT PATH | CREATE MODELS DIRECTORY PATH AND DIRECTORY
+     ********************************************************************************/
+
+        $projectPath         = __DIR__ . "/../../../..";
+        $modelsDirectoryPath = $projectPath;
+
+        if (!empty($argv[2])) {
+
+            $arg2 = trim($argv[2]);
+            $arg2 = trim($arg2, '/');
+
+            $modelsDirectoryPath = (!empty($arg2) && $arg2 !== 'models') ? "{$modelsDirectoryPath}/{$arg2}" : $modelsDirectoryPath;
+
+        }
+
+        $modelsDirectoryPath .= '/models';
+
+        if (!is_dir($modelsDirectoryPath)) {
+            mkdir($modelsDirectoryPath, 0755);
+        }
 
     /********************************************************************************
      * GET .env FILE
      ********************************************************************************/
 
         $envFound    = FALSE;
-        $envFilePath = "/../../../../";
+        $envFilePath = $projectPath;
 
         for ($i = 0; $i < 5; $i++) {
 
-            if (file_exists(__DIR__ . $envFilePath . '.env')) {
-
-                $envFilePath = (__DIR__ . $envFilePath);
-                //$envFilePath = rtrim($envFilePath, '/.env');
-                $envFound    = TRUE;
+            if (file_exists($envFilePath . '/.env')) {
+                $envFound = TRUE;
                 break;
-
             } else {
-                $envFilePath = '/..' . $envFilePath;
+                $envFilePath .= '/..';
             }
 
         }
 
         if (!$envFound) {
-
             echo "\r\nMODEL BUILDER: .env file not found!\r\n\r\n";
             die();
-
-        }
-
-    /********************************************************************************
-     * GET MODELS DIRECTORY PATH FROM PASSED ARGUMENT
-     ********************************************************************************/
-
-        if (!empty($argv[1])) {
-
-            $modelsDirectoryPath = trim($argv[1]);
-            $modelsDirectoryPath = rtrim($argv[1], '/');
-
-            if (!is_dir($modelsDirectoryPath)) {
-
-                echo "\r\nMODEL BUILDER: Invalid directory provided!\r\n\r\n";
-                echo "MODEL BUILDER: php ModelBuilder.php '/path/to/working/directory'\r\n\r\n";
-                die();
-
-            } else if (substr($modelsDirectoryPath, -1, 6) !== 'models') {
-                $modelsDirectoryPath = "{$modelsDirectoryPath}/models";
-            }
-
-            if (!is_dir($modelsDirectoryPath)) {
-                mkdir($modelsDirectoryPath, 0755);
-            }
-
-        } else {
-
-            echo "\r\nMODEL BUILDER: Missing arguments!\r\n";
-            echo "MODEL BUILDER: php ModelBuilder.php '/path/to/working/directory'\r\n\r\n";
-            die();
-
         }
 
     /********************************************************************************
@@ -85,6 +80,7 @@
              ********************************************************************************/
 
                 const SEARCH = [
+                    '[NAMESPACE]',
                     '[MODEL_NAME]',
                     '[MODEL_NAME_FIRST_LETTER_LOWERCASE]',
                     '[MODEL_NAME_UPPERCASE]',
@@ -105,14 +101,16 @@
 
             /********************************************************************************
              * CLASS VARIABLES
-             * @var string $baseModel Holds base model text
+             * @var string $baseModelContent Holds base model content
+             * @var string|false $model
              * @var array $replace Array of values to use in BaseModel.php.template (for each model)
              ********************************************************************************/
 
-                private $baseModel;
-                private $model;
+                private string $baseModelContent;
+                private string|false $modelContent;
 
-                private $replace = [
+                private array $replace = [
+                    'namespace'                      => '',
                     'modelName'                      => '',
                     'modelNameFirstLetterLowercase'  => '',
                     'modelNameUppercase'             => '',
@@ -133,23 +131,29 @@
 
             /********************************************************************************
              * CLASS CONSTRUCTOR AND DESTRUCTOR
+             * @param string $modelsDirectoryPath
+             * @param string $namespace
              ********************************************************************************/
 
-                public function __construct($modelsDirectoryPath) {
+                public function __construct(string $modelsDirectoryPath, string $namespace) {
+
+                    // SET NAMESPACE IN REPLACE ARRAY
+
+                        $this->replace['namespace'] = $namespace;
 
                     // GET BASE MODEL | GET TABLE DATA
 
                         $this->prompt("\nStarting Base Model Builder...\n", FALSE);
 
-                        $this->baseModel = file_get_contents(__DIR__ . '/BaseModel.php.template');
+                        $this->baseModelContent = file_get_contents(__DIR__ . 'templates/BaseModel.php.template');
 
-                        if (!empty($this->baseModel)) {
+                        if (!empty($this->baseModelContent)) {
                             $this->prompt('Retrieved base model template');
                         }
 
-                        $this->model = file_get_contents(__DIR__ . '/WorkingModel.php.template');
+                        $this->modelContent = file_get_contents(__DIR__ . 'templates/WorkingModel.php.template');
 
-                        if (!empty($this->model)) {
+                        if (!empty($this->modelContent)) {
                             $this->prompt('Retrieved model template');
                         }
 
@@ -173,8 +177,8 @@
 
                     // COPY MODEL FILE IF IT DOESN'T EXIST
 
-                        if (!file_exists(__DIR__ . 'models/Model.php.template')) {
-                            copy((__DIR__ . '/Model.php.template'), (__DIR__ . '/models/Model.php'));
+                        if (!file_exists($modelsDirectoryPath . '/base/Model.php')) {
+                            copy((__DIR__ . 'templates/Model.php.template'), ($modelsDirectoryPath . '/base/Model.php'));
                         }
 
                 }
@@ -252,7 +256,7 @@
 
                             // DO ANY VALUE PREP THAT IS REQUIRED
 
-                                if (strpos($column['Type'], '(') !== FALSE) {
+                                if (str_contains($column['Type'], '(')) {
                                     $column['Type'] = stristr($column['Type'], '(', TRUE);
                                 }
 
@@ -308,9 +312,9 @@
 
                     // SAVE MODEL FILES
 
-                        $baseModel     = str_replace(ModelBuilder::SEARCH, $this->replace, $this->baseModel);
-                        $baseModelFile = __DIR__ . "/models/{$this->replace['modelName']}Model.php.template";
-                        $fileSaved     = file_put_contents($baseModelFile, $baseModel);
+                        $baseModelContent = str_replace(ModelBuilder::SEARCH, $this->replace, $this->baseModelContent);
+                        $baseModelFile    = "{$modelsDirectoryPath}/base/{$this->replace['modelName']}Model.php";
+                        $fileSaved        = file_put_contents($baseModelFile, $baseModelContent);
 
                         if ($fileSaved !== FALSE) {
 
@@ -318,8 +322,8 @@
 
                             if (!file_exists($modelFile)) {
 
-                                $model     = str_replace(ModelBuilder::SEARCH, $this->replace, $this->model);
-                                $fileSaved = file_put_contents($modelFile, $model);
+                                $modelContent = str_replace(ModelBuilder::SEARCH, $this->replace, $this->modelContent);
+                                $fileSaved    = file_put_contents($modelFile, $modelContent);
 
                             }
 
@@ -444,6 +448,6 @@
 
         }
 
-        new ModelBuilder($modelsDirectoryPath);
+        new ModelBuilder($modelsDirectoryPath, $namespace);
 
 ?>

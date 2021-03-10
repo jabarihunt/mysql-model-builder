@@ -1,4 +1,7 @@
-<?php namespace jabarihunt\Models;
+<?php namespace [NAMESPACE]\Models\Base;
+
+    use jabarihunt\MySQL as DB;
+    use [NAMESPACE]\Models\[MODEL_NAME];
 
     /********************************************************************************
      * [MODEL_NAME_UPPERCASE] BASE MODEL
