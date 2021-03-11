@@ -85,17 +85,17 @@
 
                             // ADD TO DATABASE
 
-                                $statement = DB::prepare("INSERT INTO `[TABLE_NAME]` ([CREATE_METHOD_COLUMN_NAMES]) values ([CREATE_QUERY_COLUMN_PLACEHOLDERS])");
-                                $statement->bind_param('[CREATE_METHOD_BIND_TYPES]', [CREATE_METHOD_BIND_DATA_STRING]);
-                                $statement->execute();
+                                $result = DB::prepare(
+                                    "INSERT INTO `[TABLE_NAME]` ([CREATE_METHOD_COLUMN_NAMES]) values ([CREATE_QUERY_COLUMN_PLACEHOLDERS])",
+                                    $data,
+                                    [CREATE_METHOD_BIND_TYPES]
+                                );
 
                             // CREATE MODEL INSTANCE | CLOSE PREPARED STATEMENT
 
-                                if ($statement->affected_rows == 1) {
-
+                                if (is_int($result) && $result > 0) {
                                     $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = new [MODEL_NAME]($data);
                                     call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE], 'afterCreate']);
-
                                 }
 
                                 $statement->close();
@@ -127,18 +127,15 @@
 
                             // VALIDATE PASSED VALUE-> CHECK IF ITS AN INTEGER OR ARRAY
 
-                                if (is_numeric($idOrData) && is_int(intval($idOrData))) {
+                                if (is_int($idOrData)) {
 
                                     // ASSUME A PRIMARY KEY WAS PASSED
 
                                         $result = DB::query("SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE `id` = '{$idOrData}'");
 
-                                        if ($result instanceof \mysqli_result && $result->num_rows == 1) {
-
-                                            $data = $result->fetch_assoc();
+                                        if (!empty($result)) {
                                             $[MODEL_NAME_FIRST_LETTER_LOWERCASE][0] = new [MODEL_NAME]($data);
                                             call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE][0], 'afterGet']);
-
                                         }
 
                                 } else if (is_array($idOrData)) {
@@ -161,7 +158,6 @@
                                                     list($field, $operator, $value) = $part;
 
                                                     $params[$field] = DB::sanitize($value, static::DATA_TYPES[$field]);
-                                                    $params[$field] = &$params[$field];    // ADDED TO SATISFY THE call_user_func_array() METHOD
                                                     $where       .= "`{$field}` {$operator} ? AND ";
 
                                                     if (in_array(static::DATA_TYPES[$field], DB::DATA_TYPE_INTEGER)) {$bindTypes .= 'i';}
@@ -174,42 +170,32 @@
 
                                         $where = rtrim($where, ' AND ');
 
-                                    // CREATE PREPARED STATEMENT | ADD BIND TYPE VALUE TO BEGINNING OF VALUES ARRAY
+                                    // CREATE $ EXECUTE PREPARED STATEMENT
 
-                                        $statement = DB::prepare("SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE {$where}");
-                                        array_unshift($params, $bindTypes);
+                                        $result = DB::prepare(
+                                            "SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE {$where}"
+                                            $params,
+                                            $bindTypes
+                                        );
 
-                                    // MAKE SURE A VALID MYSQLI STATEMENT WAS RETURNED
 
-                                        if ($statement instanceof \mysqli_stmt) {
+                                    // MAKE SURE RESULTS WERE RETURNED -> CREATE ARRAY OF OBJECTS
 
-                                            // USE REFLECTION CLASS INSTANCE TO BIND VALUES TO PREPARED STATEMENT | EXECUTE STATEMENT
+                                        if (!empty($results)) {
 
-                                                call_user_func_array([&$statement, 'bind_param'], static::arrayReferenceValues($params));
-                                                $statement->execute();
+                                            $key = 0;
 
-                                            // PROCESS RESULTS | CLOSE STATEMENT
+                                            foreach ($result as $row) {
 
-                                                $result = $statement->get_result();
-                                                $key    = 0;
+                                                $[MODEL_NAME_FIRST_LETTER_LOWERCASE][$key] = new [MODEL_NAME]($row);
 
-                                                if ($result->num_rows > 0) {
-
-                                                    while ($row = $result->fetch_assoc()) {
-
-                                                        $[MODEL_NAME_FIRST_LETTER_LOWERCASE][$key] = new [MODEL_NAME]($row);
-
-                                                        if ($[MODEL_NAME_FIRST_LETTER_LOWERCASE][$key] instanceof [MODEL_NAME]) {
-                                                            call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE][$key], 'afterGet']);
-                                                        }
-
-                                                        $key++;
-
-                                                    }
-
+                                                if ($[MODEL_NAME_FIRST_LETTER_LOWERCASE][$key] instanceof [MODEL_NAME]) {
+                                                    call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE][$key], 'afterGet']);
                                                 }
 
-                                                $statement->close();
+                                                $key++;
+
+                                            }
 
                                         }
 
@@ -217,7 +203,7 @@
 
                         }
 
-                    // CALL AFTER GET CALLBACK | RETURN MODEL
+                    // RETURN MODEL
 
                         return $[MODEL_NAME_FIRST_LETTER_LOWERCASE];
 
