@@ -152,7 +152,7 @@
 
                         $this->prompt("\nStarting Base Model Builder...\n", FALSE);
 
-                        $this->baseModelContent = file_get_contents(__DIR__ . '/templates/BaseModel.php');
+                        $this->baseModelContent = file_get_contents(__DIR__ . '/templates/BaseModel.php.template');
 
                         if (!empty($this->baseModelContent)) {
                             $this->prompt('Retrieved base model template');
@@ -174,7 +174,7 @@
 
                         $content = file_get_contents(__DIR__ . '/templates/Model.php.template');
                         $content = str_replace(ModelBuilder::SEARCH, $this->replace, $content);
-                        file_put_contents($modelsDirectoryPath . '/base/Model.php.template', $content);
+                        file_put_contents($modelsDirectoryPath . '/base/Model.php', $content);
 
                     // BUILD BASE MODEL FOR EACH TABLE AND SAVE
 
