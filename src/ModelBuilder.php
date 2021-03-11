@@ -73,7 +73,7 @@
 
             /********************************************************************************
              * CLASS CONSTANTS
-             * @var array SEARCH Array of place holders in BaseModel.php.template
+             * @var array SEARCH Array of place holders in BaseModel.php
              ********************************************************************************/
 
                 const SEARCH = [
@@ -100,7 +100,7 @@
              * CLASS VARIABLES
              * @var string $baseModelContent Holds base model content
              * @var string|false $model
-             * @var array $replace Array of values to use in BaseModel.php.template (for each model)
+             * @var array $replace Array of values to use in BaseModel.php (for each model)
              ********************************************************************************/
 
                 private string $baseModelContent;
@@ -152,7 +152,7 @@
 
                         $this->prompt("\nStarting Base Model Builder...\n", FALSE);
 
-                        $this->baseModelContent = file_get_contents(__DIR__ . '/templates/BaseModel.php.template');
+                        $this->baseModelContent = file_get_contents(__DIR__ . '/templates/BaseModel.php');
 
                         if (!empty($this->baseModelContent)) {
                             $this->prompt('Retrieved base model template');
@@ -174,7 +174,7 @@
 
                         $content = file_get_contents(__DIR__ . '/templates/Model.php.template');
                         $content = str_replace(ModelBuilder::SEARCH, $this->replace, $content);
-                        file_put_contents($modelsDirectoryPath . '/base/Model.php', $content);
+                        file_put_contents($modelsDirectoryPath . '/base/Model.php.template', $content);
 
                     // BUILD BASE MODEL FOR EACH TABLE AND SAVE
 
@@ -320,7 +320,7 @@
                     // SAVE MODEL FILES
 
                         $baseModelContent = str_replace(ModelBuilder::SEARCH, $this->replace, $this->baseModelContent);
-                        $baseModelFile    = "{$modelsDirectoryPath}/base/{$this->replace['modelName']}Model.php";
+                        $baseModelFile    = "{$modelsDirectoryPath}/base/{$this->replace['modelName']}Model.php.template";
                         $fileSaved        = file_put_contents($baseModelFile, $baseModelContent);
 
                         if ($fileSaved !== FALSE) {

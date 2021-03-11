@@ -72,19 +72,15 @@
 
                         $set = rtrim($set, ', ');
 
-                    // CREATE PREPARED STATEMENT | ADD BIND TYPE VALUE TO BEGINNING OF VALUES ARRAY
+                    // CREATE & RUN PREPARED STATEMENT QUERY -> PROCESS RESULTS
 
-                        $statement = DB::prepare("UPDATE `" . static::TABLE_NAME . "` SET {$set} WHERE `id` = '{$this->id}'");
-                        array_unshift($data, $bindTypes);
+                        $result = DB::prepare(
+                            "UPDATE `" . static::TABLE_NAME . "` SET {$set} WHERE `id` = '{$this->id}'",
+                            $data,
+                            $bindTypes
+                        );
 
-                    // USE REFLECTION CLASS INSTANCE TO BIND VALUES TO PREPARED STATEMENT | EXECUTE STATEMENT AND PROCESS RESULTS
-
-                        call_user_func_array([&$statement, 'bind_param'], static::arrayReferenceValues($data));
-                        $statement->execute();
-
-                        if ($statement->affected_rows == 1) {
-
-                            unset($data[0]);
+                        if (is_int($result) && $result > 0) {
 
                             foreach ($data as $field => $value) {
                                 $this->$field = $value;
@@ -96,13 +92,9 @@
 
                     // RUN AFTER UPDATE CALLBACK | CLOSE STATEMENT
 
-                        if ($statement->errno == 0) {
+                        if ($updated) {
                             call_user_func([$this, 'afterUpdate']);
                         }
-
-                        $statement->close();
-
-                    // RETURN RESULT
 
                         return $updated;
 
@@ -130,20 +122,20 @@
 
                 public static function deleteByIds(array $ids): bool {
 
-                    // SET INITIAL VARIABLES
+                    // SET INITIAL VARIABLES | DELETE FROM THE DATABASE | RETURN BOOLEAN RESULT
 
-                        $deleted  = FALSE;
-                        $ids      = self::sanitize($ids);
-
-                    // CREATE STRING OF IDS | DELETE FROM THE DATABASE | RETURN RESULT
-
+                        $ids      = self::sanitize($ids, DB::DATA_TYPE_INTEGER);
                         $idString = implode(',', $ids);
 
                         if (!empty($idString)) {
-                            $deleted = DB::query("DELETE FROM `" . static::TABLE_NAME . "` WHERE `id` IN ({$idString})");
+                            $result = DB::query("DELETE FROM `" . static::TABLE_NAME . "` WHERE `id` IN ({$idString})");
                         }
 
-                        return $deleted;
+                        return (
+                            !empty($result) &&
+                            is_int($result) &&
+                            $result > 0
+                        );
 
                 }
 
@@ -174,20 +166,14 @@
 
                 final protected static function sanitize(array $data): array {
 
-                    foreach ($data as $field => $value) {
+                    // SET THE FIELD DATA TYPE | SANITIZE FIELD | RETURN DATA
 
-                        // SET THE FIELD DATA TYPE | SANITIZE FIELD
-
-                            if (is_string($field) && !empty(static::DATA_TYPES[$field])) {
-                                $dataType = static::DATA_TYPES[$field];
-                            } else {
-                                $dataType = null;
-                            }
-
+                        foreach ($data as $field => $value) {
+                            $dataType     = (is_string($field) && !empty(static::DATA_TYPES[$field])) ? static::DATA_TYPES[$field] : NULL;
                             $data[$field] = DB::sanitize($value, $dataType);
-                    }
+                        }
 
-                    return $data;
+                        return $data;
 
                 }
 
@@ -200,17 +186,17 @@
              * @return array
              ********************************************************************************/
 
-                final protected static function arrayReferenceValues(array $data): array {
-
-                    $referencedValues = [];
-
-                    if (strnatcmp(phpversion(),'5.3') >= 0) {
-                        foreach ($data as $key => $value) {$referencedValues[$key] = &$data[$key];}
-                    }
-
-                    return $referencedValues;
-
-                }
+//                final protected static function arrayReferenceValues(array $data): array {
+//
+//                    $referencedValues = [];
+//
+//                    if (strnatcmp(phpversion(),'5.3') >= 0) {
+//                        foreach ($data as $key => $value) {$referencedValues[$key] = &$data[$key];}
+//                    }
+//
+//                    return $referencedValues;
+//
+//                }
 
         }
 
