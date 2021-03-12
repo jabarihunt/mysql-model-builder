@@ -48,9 +48,9 @@
 
                     // SET INITIAL VARIABLES
 
-                        $bindTypes  = '';
-                        $set        = '';
-                        $updated    = FALSE;
+                        $bindTypes = '';
+                        $set       = '';
+                        $updated   = FALSE;
 
                     // LOOP THROUGH VALUES -> SANITIZE, ADD TO UPDATE QUERY PARTS
 
@@ -176,27 +176,6 @@
                         return $data;
 
                 }
-
-            /********************************************************************************
-             * ARRAY REFERENCE VALUES METHOD
-             *
-             * Returns an array with the values as a reference
-             *
-             * @param array $data
-             * @return array
-             ********************************************************************************/
-
-//                final protected static function arrayReferenceValues(array $data): array {
-//
-//                    $referencedValues = [];
-//
-//                    if (strnatcmp(phpversion(),'5.3') >= 0) {
-//                        foreach ($data as $key => $value) {$referencedValues[$key] = &$data[$key];}
-//                    }
-//
-//                    return $referencedValues;
-//
-//                }
 
         }
 

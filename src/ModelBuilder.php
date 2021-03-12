@@ -206,12 +206,8 @@
                         $tableNames = [];
                         $results    = DB::query('SHOW TABLES');
 
-                        while($row = $results->fetch_row()) {
-
-                            if ($row[0] != 'sessions') {
-                                $tableNames[] = $row[0];
-                            }
-
+                        foreach ($results as $tableArray) {
+                            $tableNames[] = $tableArray[array_key_first($tableArray)];
                         }
 
                         return $tableNames;
@@ -230,7 +226,7 @@
 
                     // GET TABLE COLUMN INFO | SET INITIAL RETURN VALUE
 
-                        $results    = DB::query("DESCRIBE {$tableName}");
+                        $columns    = DB::query("DESCRIBE {$tableName}");
                         $modelBuilt = FALSE;
 
                     // SET INITIAL REPLACE VARIABLES
@@ -259,7 +255,7 @@
                     *    ["Extra"]=>
                     *    string(0) ""
                     */
-                        while($column = $results->fetch_assoc()) {
+                        foreach ($columns as $column) {
 
                             // DO ANY VALUE PREP THAT IS REQUIRED
 
@@ -320,7 +316,7 @@
                     // SAVE MODEL FILES
 
                         $baseModelContent = str_replace(ModelBuilder::SEARCH, $this->replace, $this->baseModelContent);
-                        $baseModelFile    = "{$modelsDirectoryPath}/base/{$this->replace['modelName']}Model.php.template";
+                        $baseModelFile    = "{$modelsDirectoryPath}/base/{$this->replace['modelName']}Model.php";
                         $fileSaved        = file_put_contents($baseModelFile, $baseModelContent);
 
                         if ($fileSaved !== FALSE) {

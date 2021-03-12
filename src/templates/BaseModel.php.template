@@ -12,9 +12,6 @@
 
             /********************************************************************************
              * CLASS VARIABLES
-             * @var string $id
-             * @var string $data
-             * @var int $expires
              ********************************************************************************/
 
 [CLASS_VARIABLES]
@@ -88,7 +85,7 @@
                                 $result = DB::prepare(
                                     "INSERT INTO `[TABLE_NAME]` ([CREATE_METHOD_COLUMN_NAMES]) values ([CREATE_QUERY_COLUMN_PLACEHOLDERS])",
                                     $data,
-                                    [CREATE_METHOD_BIND_TYPES]
+                                    '[CREATE_METHOD_BIND_TYPES]'
                                 );
 
                             // CREATE MODEL INSTANCE | CLOSE PREPARED STATEMENT
@@ -97,8 +94,6 @@
                                     $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = new [MODEL_NAME]($data);
                                     call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE], 'afterCreate']);
                                 }
-
-                                $statement->close();
 
                         }
 
@@ -110,11 +105,11 @@
 
             /********************************************************************************
              * GET METHOD
-             * @param mixed $idOrData
+             * @param int|array $idOrData
              * @return array
              ********************************************************************************/
 
-                public static function get($idOrData): array {
+                public static function get(int|array $idOrData): array {
 
                     // RUN BEFORE GET CALLBACK | SET INITIAL VARIABLES
 
@@ -134,7 +129,7 @@
                                         $result = DB::query("SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE `id` = '{$idOrData}'");
 
                                         if (!empty($result)) {
-                                            $[MODEL_NAME_FIRST_LETTER_LOWERCASE][0] = new [MODEL_NAME]($data);
+                                            $[MODEL_NAME_FIRST_LETTER_LOWERCASE][0] = new [MODEL_NAME]($result[0]);
                                             call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE][0], 'afterGet']);
                                         }
 
@@ -142,10 +137,10 @@
 
                                     // ASSUME WHERE STATEMENT VALUES WERE PASSED | SET INITIAL VARIABLES
 
-                                        $data       = $idOrData;
-                                        $bindTypes  = '';
-                                        $params     = [];
-                                        $where      = '';
+                                        $data      = $idOrData;
+                                        $bindTypes = '';
+                                        $params    = [];
+                                        $where     = '';
 
                                     // LOOP THROUGH DATA TO BUILD WHERE STATEMENT
 
@@ -173,11 +168,10 @@
                                     // CREATE $ EXECUTE PREPARED STATEMENT
 
                                         $result = DB::prepare(
-                                            "SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE {$where}"
+                                            "SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE {$where}",
                                             $params,
                                             $bindTypes
                                         );
-
 
                                     // MAKE SURE RESULTS WERE RETURNED -> CREATE ARRAY OF OBJECTS
 
