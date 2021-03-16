@@ -37,7 +37,7 @@
              * needed, then call `parent::update($values)` at the end of the method.
              *
              * @param mixed $data An array of values to update
-             * @return boolean
+             * @return bool
              ********************************************************************************/
 
                 public function update(array $data): bool {
@@ -80,21 +80,19 @@
                             $bindTypes
                         );
 
-                        if (is_int($result) && $result > 0) {
+                        if (is_int($result) && $result === 1) {
 
                             foreach ($data as $field => $value) {
                                 $this->$field = $value;
                             }
 
+                            call_user_func([$this, 'afterUpdate']);
+
                             $updated = TRUE;
 
                         }
 
-                    // RUN AFTER UPDATE CALLBACK | CLOSE STATEMENT
-
-                        if ($updated) {
-                            call_user_func([$this, 'afterUpdate']);
-                        }
+                    // RETURN UPDATED
 
                         return $updated;
 
@@ -169,7 +167,7 @@
                     // SET THE FIELD DATA TYPE | SANITIZE FIELD | RETURN DATA
 
                         foreach ($data as $field => $value) {
-                            $dataType     = (is_string($field) && !empty(static::DATA_TYPES[$field])) ? static::DATA_TYPES[$field] : NULL;
+                            $dataType     = (is_string($field) && !empty(static::DATA_TYPES[$field])) ? static::DATA_TYPES[$field] : DB::DATA_TYPE_TEXT;
                             $data[$field] = DB::sanitize($value, $dataType);
                         }
 

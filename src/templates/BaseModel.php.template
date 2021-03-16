@@ -106,15 +106,15 @@
             /********************************************************************************
              * GET METHOD
              * @param int|array $idOrData
-             * @return array
+             * @return [MODEL_NAME]|array|null
              ********************************************************************************/
 
-                public static function get(int|array $idOrData): array {
+                public static function get(int|array $idOrData): [MODEL_NAME]|array|null {
 
                     // RUN BEFORE GET CALLBACK | SET INITIAL VARIABLES
 
                         $idOrData = call_user_func('static::beforeGet', $idOrData);
-                        $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = [];
+                        $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = NULL;
 
                     // MAKE SURE PASSED VALUE ISN'T EMPTY |  | QUERY DATABASE FOR MODEL DATA AND CREATE MODEL | RUN AFTER CREATE CALLBACK
 
@@ -128,9 +128,9 @@
 
                                         $result = DB::query("SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE `id` = '{$idOrData}'");
 
-                                        if (!empty($result)) {
-                                            $[MODEL_NAME_FIRST_LETTER_LOWERCASE][0] = new [MODEL_NAME]($result[0]);
-                                            call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE][0], 'afterGet']);
+                                        if (!empty($result[0]) && is_array($result[0])) {
+                                            $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = new [MODEL_NAME]($result[0]);
+                                            call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE], 'afterGet']);
                                         }
 
                                 } else if (is_array($idOrData)) {
@@ -165,30 +165,19 @@
 
                                         $where = rtrim($where, ' AND ');
 
-                                    // CREATE $ EXECUTE PREPARED STATEMENT
+                                    // CREATE & EXECUTE PREPARED STATEMENT
 
-                                        $result = DB::prepare(
+                                        $results = DB::prepare(
                                             "SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE {$where}",
                                             $params,
                                             $bindTypes
                                         );
 
-                                    // MAKE SURE RESULTS WERE RETURNED -> CREATE ARRAY OF OBJECTS
+                                        if (is_array($results) && count($results) > 0) {
 
-                                        if (!empty($results)) {
-
-                                            $key = 0;
-
-                                            foreach ($result as $row) {
-
-                                                $[MODEL_NAME_FIRST_LETTER_LOWERCASE][$key] = new [MODEL_NAME]($row);
-
-                                                if ($[MODEL_NAME_FIRST_LETTER_LOWERCASE][$key] instanceof [MODEL_NAME]) {
-                                                    call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE][$key], 'afterGet']);
-                                                }
-
-                                                $key++;
-
+                                            for ($i = 0; $i < count($results); $i++) {
+                                                $[MODEL_NAME_FIRST_LETTER_LOWERCASE][$i] = new [MODEL_NAME]($results[$i]);
+                                                call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE][$i], 'afterCreate']);
                                             }
 
                                         }
