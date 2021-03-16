@@ -191,7 +191,12 @@
                 }
 
                 public function __destruct() {
-                    $this->prompt("\n", FALSE);
+
+                    // PROMPT AN EMPTY LINE | RUM COMPOSER DUMP AUTOLOAD
+
+                        $this->prompt("\n", FALSE);
+                        exec('bash' . __DIR__ . "/run_composer.sh");
+
                 }
 
             /********************************************************************************
