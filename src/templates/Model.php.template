@@ -183,8 +183,8 @@
 
                 public static function requiredFieldsExist(array $data): bool {
 
-                    foreach ($data as $key => $value) {
-                        if (!in_array($key, static::REQUIRED_FIELDS)) {
+                    foreach (static::REQUIRED_FIELDS as $key) {
+                        if ($key !== static::PRIMARY_KEY && !array_key_exists($key, $data)) {
                             return FALSE;
                         }
                     }
