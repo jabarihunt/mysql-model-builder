@@ -176,6 +176,24 @@
                 }
 
             /********************************************************************************
+             * REQUIRED FIELDS EXIST METHOD
+             * @param array $data
+             * @return bool
+             ********************************************************************************/
+
+                public static function requiredFieldsExist(array $data): bool {
+
+                    foreach ($data as $key => $value) {
+                        if (!in_array($key, static::REQUIRED_FIELDS)) {
+                            return FALSE;
+                        }
+                    }
+
+                    return TRUE;
+
+                }
+
+            /********************************************************************************
              * ARRAY REFERENCE VALUES METHOD
              *
              * Returns an array with the values as a reference
