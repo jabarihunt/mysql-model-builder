@@ -194,6 +194,23 @@
                 }
 
             /********************************************************************************
+             * TO ARRAY METHOD
+             * @return array
+             ********************************************************************************/
+
+                public function toArray(): array {
+
+                    $array = [];
+
+                    foreach (static::DATA_TYPES as $key => $value) {
+                        $array[$key] = $this->$key;
+                    }
+
+                    return $array;
+
+                }
+
+            /********************************************************************************
              * ARRAY REFERENCE VALUES METHOD
              *
              * Returns an array with the values as a reference
