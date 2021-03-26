@@ -66,16 +66,19 @@
                         if (
 [CREATE_METHOD_VALIDATION_CRITERIA]
                         ) {
-                            // ADD NULL VALUES
+
+                            // CREATE INSERT DATA ARRAY
+
+                                $insertData = [];
 
                                 foreach (self::DATA_TYPES as $key => $dataType) {
 
-                                    if (
-                                        empty($data[$key]) &&
-                                        !in_array($key, self::REQUIRED_FIELDS) &&
-                                        $key != self::PRIMARY_KEY
-                                    ) {
-                                        $data[$key] = NULL;
+                                    if ($key != self::PRIMARY_KEY) {
+
+                                        empty($data[$key]) && !in_array($key, self::REQUIRED_FIELDS)
+                                            ? $insertData[$key] = NULL
+                                            : $insertData[$key] = $data[$key];
+
                                     }
 
                                 }
@@ -84,14 +87,14 @@
 
                                 $result = DB::prepare(
                                     "INSERT INTO `[TABLE_NAME]` ([CREATE_METHOD_COLUMN_NAMES]) values ([CREATE_QUERY_COLUMN_PLACEHOLDERS])",
-                                    $data,
+                                    $insertData,
                                     '[CREATE_METHOD_BIND_TYPES]'
                                 );
 
                             // CREATE MODEL INSTANCE | CLOSE PREPARED STATEMENT
 
                                 if (is_int($result) && $result > 0) {
-                                    $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = new [MODEL_NAME]($data);
+                                    $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = new [MODEL_NAME]($insertData);
                                     call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE], 'afterCreate']);
                                 }
 
