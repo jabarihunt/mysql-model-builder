@@ -194,6 +194,22 @@
                 }
 
             /********************************************************************************
+             * GET BIND TYPE METHOD
+             * @param array $field
+             * @return string
+             ********************************************************************************/
+
+                protected static function getBindType(string $field): string {
+
+                    return match(TRUE) {
+                        in_array(static::DATA_TYPES[$field], DB::DATA_TYPE_INTEGER) => 'i',
+                        in_array(static::DATA_TYPES[$field], DB::DATA_TYPE_REAL) => 'd',
+                        default => 's'
+                    };
+
+                }
+
+            /********************************************************************************
              * TO ARRAY METHOD
              * @return array
              ********************************************************************************/

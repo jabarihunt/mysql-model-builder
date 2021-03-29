@@ -155,12 +155,27 @@
 
                                                     list($field, $operator, $value) = $part;
 
-                                                    $params[$field] = DB::sanitize($value, static::DATA_TYPES[$field]);
-                                                    $where       .= "`{$field}` {$operator} ? AND ";
+                                                    if (in_array($operator, ['IN', 'NOT IN']) && is_array($value)) {
 
-                                                    if (in_array(static::DATA_TYPES[$field], DB::DATA_TYPE_INTEGER)) {$bindTypes .= 'i';}
-                                                    else if (in_array(static::DATA_TYPES[$field], DB::DATA_TYPE_REAL)) {$bindTypes .= 'd';}
-                                                    else {$bindTypes .= 's';}
+                                                        $where .= "`{$field}` {$operator} (";
+
+                                                        foreach ($value as $valueValue) {
+                                                            $params[$field] = DB::sanitize($value, static::DATA_TYPES[$field]);
+                                                            $where         .= '?, ';
+                                                            $bindTypes     .= self::getBindType($field);
+                                                        }
+
+                                                        $where = rtrim($where, ', ') . ') AND ';
+
+                                                    } else if (in_array($operator, ['IS', 'IS NOT'])) {
+                                                        $params[$field] = $value;
+                                                        $where         .= "`{$field}` {$operator} ? AND ";
+                                                        $bindTypes     .= self::getBindType($field);
+                                                    } else {
+                                                        $params[$field] = DB::sanitize($value, static::DATA_TYPES[$field]);
+                                                        $where         .= "`{$field}` {$operator} ? AND ";
+                                                        $bindTypes     .= self::getBindType($field);
+                                                    }
 
                                             }
 
