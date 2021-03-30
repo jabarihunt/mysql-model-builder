@@ -94,6 +94,7 @@
                             // CREATE MODEL INSTANCE | CLOSE PREPARED STATEMENT
 
                                 if (is_int($result) && $result > 0) {
+                                    $insertData[self::PRIMARY_KEY] = DB::getInsertId();
                                     $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = new [MODEL_NAME]($insertData);
                                     call_user_func([$[MODEL_NAME_FIRST_LETTER_LOWERCASE], 'afterCreate']);
                                 }
