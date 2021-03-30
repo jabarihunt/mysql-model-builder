@@ -52,6 +52,12 @@
                         $set       = '';
                         $updated   = FALSE;
 
+                    // REMOVE PRIMARY KEY FIELD
+
+                        if (isset($data[static::PRIMARY_KEY])) {
+                            unset($data[static::PRIMARY_KEY]);
+                        }
+
                     // LOOP THROUGH VALUES -> SANITIZE, ADD TO UPDATE QUERY PARTS
 
                         foreach ($data as $field => $value) {
