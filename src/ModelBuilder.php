@@ -7,6 +7,7 @@
         require(__DIR__ . '/../../../autoload.php');
 
         use Dotenv\Dotenv;
+        use ICanBoogie\Inflector;
         use jabarihunt\MySQL as DB;
 
         $projectPath = getcwd();
@@ -104,6 +105,7 @@
              ********************************************************************************/
 
                 private string $baseModelContent;
+                private static Inflector $inflector;
                 private string|false $modelContent;
 
                 private array $replace = [
@@ -136,6 +138,7 @@
 
                     // SET NAMESPACE IN REPLACE ARRAY
 
+                        self::$inflector = Inflector::get(Inflector::DEFAULT_LOCALE);
                         $this->replace['namespace'] = $namespace;
 
                     // CREATE MODEL AND BASE MODEL DIRECTORIES
@@ -353,54 +356,8 @@
              * @return string
              ********************************************************************************/
 
-                public static function pluralToSingular(string $word): string {
-
-                    if (strlen($word) > 0) {
-
-                        // SET INITIAL VARIABLES
-
-                        $firstLetter      = $word[0];
-                        $specialCaseWords = [];
-
-                        $wordEndings = [
-                            'ies' => 'y',
-                            'oes' => 'oe',
-                            'ves' => 'f',
-                            'xes' => 'x',
-                            'os'  => 'o',
-                            's'   => ''
-                        ];
-
-                        // HANDLE WORD TYPE
-
-                        if (array_key_exists(strtolower($word), $specialCaseWords)) {
-                            $word = $specialCaseWords[$word];
-                        } else {
-
-                            // LOOP THROUGH WORD ENDINGS -> BUILD WORD ON MATCH
-
-                            foreach($wordEndings as $ending => $replacement) {
-
-                                if (substr($word, (strlen($ending) * -1)) == $ending) {
-
-                                    $word  = substr($word, 0, strlen($word) - strlen($ending));
-                                    $word .= $replacement;
-                                    break;
-
-                                }
-
-                            }
-
-                        }
-
-                        // REPLACE THE FIRST LETTER WITH WHATEVER THE ORIGINAL WAS
-
-                        $word[0] = $firstLetter;
-
-                    }
-
-                    return $word;
-
+                private static function pluralToSingular(string $word): string {
+                    return (strlen($word) > 0) ? self::$inflector->singularize($word) : $word ;
                 }
 
             /********************************************************************************
@@ -410,7 +367,7 @@
              * @return string
              ********************************************************************************/
 
-                public static function snakeToCamel(string $value, bool $firstLetterUpper = FALSE): string {
+                private static function snakeToCamel(string $value, bool $firstLetterUpper = FALSE): string {
 
                     if (strlen($value) > 0) {
 

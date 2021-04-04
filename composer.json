@@ -14,7 +14,10 @@
     }
   ],
   "require": {
-    "php": ">=8.0",
+    "php": ">=8.0"
+  },
+  "require-dev": {
+    "icanboogie/inflector": "*",
     "jabarihunt/mysql": "*",
     "vlucas/phpdotenv": "*"
   },
