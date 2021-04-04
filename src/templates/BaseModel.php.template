@@ -110,15 +110,15 @@
             /********************************************************************************
              * GET METHOD
              * @param int|array $idOrData
-             * @return [MODEL_NAME]|array|null
+             * @return [MODEL_NAME]|array
              ********************************************************************************/
 
-                public static function get(int|array $idOrData): [MODEL_NAME]|array|null {
+                public static function get(int|array $idOrData): [MODEL_NAME]|array {
 
                     // RUN BEFORE GET CALLBACK | SET INITIAL VARIABLES
 
                         $idOrData = call_user_func('static::beforeGet', $idOrData);
-                        $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = NULL;
+                        $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = [];
 
                     // MAKE SURE PASSED VALUE ISN'T EMPTY |  | QUERY DATABASE FOR MODEL DATA AND CREATE MODEL | RUN AFTER CREATE CALLBACK
 
