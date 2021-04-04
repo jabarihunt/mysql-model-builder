@@ -15,7 +15,7 @@
   ],
   "require": {
     "php": ">=8.0",
-    "icanboogie/inflector": "*",
+    "icanboogie/inflector": "2.0.1",
     "jabarihunt/mysql": "*",
     "vlucas/phpdotenv": "*"
   },
