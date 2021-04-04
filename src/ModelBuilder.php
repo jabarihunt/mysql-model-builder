@@ -369,16 +369,33 @@
 
                 private static function snakeToCamel(string $value, bool $firstLetterUpper = FALSE): string {
 
-                    if (strlen($value) > 0) {
+                    // REPLACE SPACES WITH UNDERSCORES | SEE IF STRING CONTAINS VALUE
 
-                        $value = str_replace('_', ' ', strtolower($value));
-                        $value = str_replace(' ', '', ucwords($value));
+                        $value = str_replace(' ', '_', $value);
 
-                        if (!$firstLetterUpper) {$value = lcfirst($value);}
+                        if (strlen($value) > 0) {
 
-                    }
+                            // BREAK STRING INTO ARRAY -> PROCESS EACH WORD AND REJOIN THEM
 
-                    return $value;
+                                $words = explode('_', strtolower($value));
+
+                                foreach ($words as $key => $word) {
+                                    $words[$key] = self::pluralToSingular(ucwords(strtolower($word)));
+                                }
+
+                                $value = implode('', $words);
+
+                            // MAKE FIRST LETTER LOWERCASE IF REQUESTED
+
+                                if (!$firstLetterUpper) {
+                                    $value = lcfirst($value);
+                                }
+
+                        }
+
+                    // RETURN VALUE
+
+                        return $value;
 
                 }
 

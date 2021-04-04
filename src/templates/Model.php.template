@@ -52,6 +52,12 @@
                         $set       = '';
                         $updated   = FALSE;
 
+                    // REMOVE PRIMARY KEY FIELD
+
+                        if (isset($data[static::PRIMARY_KEY])) {
+                            unset($data[static::PRIMARY_KEY]);
+                        }
+
                     // LOOP THROUGH VALUES -> SANITIZE, ADD TO UPDATE QUERY PARTS
 
                         foreach ($data as $field => $value) {
@@ -190,6 +196,22 @@
                     }
 
                     return TRUE;
+
+                }
+
+            /********************************************************************************
+             * GET BIND TYPE METHOD
+             * @param array $field
+             * @return string
+             ********************************************************************************/
+
+                protected static function getBindType(string $field): string {
+
+                    return match(TRUE) {
+                        in_array(static::DATA_TYPES[$field], DB::DATA_TYPE_INTEGER) => 'i',
+                        in_array(static::DATA_TYPES[$field], DB::DATA_TYPE_REAL) => 'd',
+                        default => 's'
+                    };
 
                 }
 
