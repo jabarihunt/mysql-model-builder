@@ -138,7 +138,7 @@
 
                     // SET NAMESPACE IN REPLACE ARRAY
 
-                        self::$inflector = Inflector::get(Inflector::DEFAULT_LOCALE);
+                        self::$inflector = Inflector::get();
                         $this->replace['namespace'] = $namespace;
 
                     // CREATE MODEL AND BASE MODEL DIRECTORIES
