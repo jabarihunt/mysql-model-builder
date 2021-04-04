@@ -364,12 +364,13 @@
 
                         $wordEndings = [
                             'sses' => 'ss',
-                            'ies' => 'y',
-                            'oes' => 'oe',
-                            'ves' => 'f',
-                            'xes' => 'x',
-                            'os'  => 'o',
-                            's'   => ''
+                            'ies'  => 'y',
+                            'oes'  => 'oe',
+                            'ves'  => 'f',
+                            'xes'  => 'x',
+                            'os'   => 'o',
+                            'us'   => 'us',
+                            's'    => ''
                         ];
 
                         // HANDLE WORD TYPE
