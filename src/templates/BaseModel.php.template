@@ -160,8 +160,8 @@
 
                                                         $where .= "`{$field}` {$operator} (";
 
-                                                        foreach ($value as $valueValue) {
-                                                            $params[]   = DB::sanitize($value, static::DATA_TYPES[$field]);
+                                                        foreach ($value as $arrayValue) {
+                                                            $params[]   = DB::sanitize($arrayValue, static::DATA_TYPES[$field]);
                                                             $where     .= '?, ';
                                                             $bindTypes .= self::getBindType($field);
                                                         }
