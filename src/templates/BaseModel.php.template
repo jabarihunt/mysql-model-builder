@@ -50,10 +50,10 @@
             /********************************************************************************
              * CREATE METHOD
              * @param array $data An array values to update
-             * @return [MODEL_NAME]
+             * @return [MODEL_NAME]|null
              ********************************************************************************/
 
-                public static function create(array $data): [MODEL_NAME] {
+                public static function create(array $data): [MODEL_NAME]|null {
 
                     // RUN BEFORE CREATE CALLBACK | SET INITIAL VARIABLES | SANITIZE DATA
 
