@@ -130,7 +130,7 @@
 
                                     // ASSUME A PRIMARY KEY WAS PASSED
 
-                                        $result = DB::query("SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE `id` = '{$idOrData}'");
+                                        $result = DB::query("SELECT [ALL_COLUMN_NAMES] FROM `[TABLE_NAME]` WHERE `id` = '{$idOrData}'");
 
                                         if (!empty($result[0]) && is_array($result[0])) {
                                             $[MODEL_NAME_FIRST_LETTER_LOWERCASE] = new [MODEL_NAME]($result[0]);
@@ -169,9 +169,15 @@
                                                         $where = rtrim($where, ', ') . ') AND ';
 
                                                     } else if (in_array($operator, ['IS', 'IS NOT'])) {
-                                                        $params[]   = $value;
-                                                        $where     .= "`{$field}` {$operator} ? AND ";
-                                                        $bindTypes .= self::getBindType($field);
+
+                                                        if ($value === NULL) {
+                                                            $where .= "`{$field}` {$operator} NULL AND ";
+                                                        } else {
+                                                            $params[]   = $value;
+                                                            $where     .= "`{$field}` {$operator} {$value} AND ";
+                                                            $bindTypes .= self::getBindType($field);
+                                                        }
+                                
                                                     } else {
                                                         $params[]   = DB::sanitize($value, static::DATA_TYPES[$field]);
                                                         $where     .= "`{$field}` {$operator} ? AND ";
@@ -187,7 +193,7 @@
                                     // CREATE & EXECUTE PREPARED STATEMENT
 
                                         $results = DB::prepare(
-                                            "SELECT [ALL_COLUMN_NAMES] FROM [TABLE_NAME] WHERE {$where}",
+                                            "SELECT [ALL_COLUMN_NAMES] FROM `[TABLE_NAME]` WHERE {$where}",
                                             $params,
                                             $bindTypes
                                         );
