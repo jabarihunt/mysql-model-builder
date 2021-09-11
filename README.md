@@ -30,7 +30,7 @@ This will install the tool as a development dependency.  Remember, you should al
 1. Fork Repository
 2. Create a descriptive branch name
 3. Make edits to your branch
-4. Squash (rebase) your commits
+4. Squash (Rebase) your commits
 5. Create a pull request
 
 ## License
