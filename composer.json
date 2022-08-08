@@ -16,8 +16,8 @@
   "require": {
     "php": ">=8.0",
     "icanboogie/inflector": "2.0.1",
-    "jabarihunt/mysql": "*",
-    "vlucas/phpdotenv": "*"
+    "jabarihunt/mysql": "v1.4.0",
+    "vlucas/phpdotenv": "5.4.1"
   },
   "autoload": {
     "psr-4": {
