@@ -16,7 +16,7 @@
              * The model constructors should be private.  It should only be called by
              * internal static methods (create, get, etc) to create new model instances.
              *
-             * @param mixed $data An array values used to create the model
+             * @param array $data An array values used to create the model
              ********************************************************************************/
 
                 protected function __construct(array $data) {
@@ -36,7 +36,7 @@
              * need to be altered first, simply override this method, edit the values as
              * needed, then call `parent::update($values)` at the end of the method.
              *
-             * @param mixed $data An array of values to update
+             * @param array $data An array of values to update
              * @return bool
              ********************************************************************************/
 
@@ -106,7 +106,7 @@
 
             /********************************************************************************
              * DELETE METHOD
-             * @returns boolean
+             * @return boolean
              ********************************************************************************/
 
                 public function delete(): bool {
@@ -201,7 +201,7 @@
 
             /********************************************************************************
              * GET BIND TYPE METHOD
-             * @param array $field
+             * @param string $field
              * @return string
              ********************************************************************************/
 
