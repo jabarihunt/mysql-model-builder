@@ -200,6 +200,53 @@
                 }
 
             /********************************************************************************
+             * ALL FIELDS ARE VALID METHOD
+             *
+             * Checks all fields in a given array to see if that are valid class fields
+             *
+             * @param array $items
+             * @param bool $checkForRequiredFields
+             * @param array $skipFields
+             * @return array
+             ********************************************************************************/
+
+                public static function allFieldsAreValid(array $items, bool $checkForRequiredFields = FALSE, array $skipFields = []): array {
+
+                    $response = [
+                        'fieldsAreValid'        => TRUE,
+                        'invalidFields'         => [],
+                        'missingRequiredFields' => []
+                    ];
+
+                    // VERIFY GIVER ARRAY FIELDS
+
+                        foreach ($items as $field => $value) {
+                            if (empty(static::DATA_TYPES[$field])) {
+                                $response['fieldsAreValid']  = FALSE;
+                                $response['invalidFields'][] = $field;
+                            }
+                        }
+
+                    // CHECK FOR REQUIRED FIELDS IF REQUESTED
+
+                      if ($checkForRequiredFields) {
+
+                          foreach (static::REQUIRED_FIELDS as $field) {
+                              if (!in_array($field, $skipFields) && empty($items[$field])) {
+                                  $response['fieldsAreValid']         = FALSE;
+                                  $response['missingRequiredFields']  = $field;
+                              }
+                          }
+
+                      }
+
+                    // SEND RESPONSE
+
+                      return $response;
+
+                }
+
+            /********************************************************************************
              * GET BIND TYPE METHOD
              * @param string $field
              * @return string
