@@ -233,8 +233,8 @@
 
                           foreach (static::REQUIRED_FIELDS as $field) {
                               if (!in_array($field, $skipFields) && empty($items[$field])) {
-                                  $response['fieldsAreValid']         = FALSE;
-                                  $response['missingRequiredFields']  = $field;
+                                  $response['fieldsAreValid']          = FALSE;
+                                  $response['missingRequiredFields'][] = $field;
                               }
                           }
 
